@@ -1,6 +1,8 @@
 package rent;
 
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Properties;
 
 public class DBConfig {
@@ -28,5 +30,9 @@ public class DBConfig {
         } catch (Exception e) {
             throw new RuntimeException("Failed to load database config", e);
         }
+    }
+    
+    public static Connection getConnection() throws Exception {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }
