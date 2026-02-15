@@ -18,7 +18,6 @@ import javax.swing.JButton;
 public class TermsAndConditions extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
 
 	public TermsAndConditions() {
 		setTitle("Terms and Conditions");

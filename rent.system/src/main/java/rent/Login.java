@@ -123,7 +123,7 @@ public class Login extends JFrame {
 
 				if (role.equalsIgnoreCase("admin")) {
 
-					Main adminFrame = new Main();
+					MainMenu adminFrame = new MainMenu();
 					adminFrame.setVisible(true);
 
 				} else {
