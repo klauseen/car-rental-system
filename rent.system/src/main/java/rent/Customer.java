@@ -39,58 +39,74 @@ public class Customer extends JFrame {
 
 		setTitle("Customer - View Cars (" + username + ")");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 800, 500);
-		contentPane = new JPanel();
-		contentPane.setLayout(null);
-		setContentPane(contentPane);
+		setSize(1000, 600);  
+		setLocationRelativeTo(null);  
+		setResizable(true); 
+		setLayout(new BorderLayout(10,10));
 
 		// ---------------- Table to show cars ----------------
 		tableCars = new JTable();
 		JScrollPane scrollPane = new JScrollPane(tableCars);
-		scrollPane.setBounds(10, 10, 760, 250);
-		contentPane.add(scrollPane);
+		add(scrollPane, BorderLayout.CENTER);
+		
+		JPanel bottomPanel = new JPanel(new BorderLayout(20,10));
+		add(bottomPanel, BorderLayout.SOUTH);
+		
+		JPanel leftPanel = new JPanel();
+		leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15 , 10));
 
 		// ---------------- Label to show car image ----------------
-		lblCarImage = new JLabel();
-		lblCarImage.setBounds(600, 270, 128, 85);
-		lblCarImage.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		contentPane.add(lblCarImage);
+		
 
 		JLabel lblFrom = new JLabel("From:");
-		lblFrom.setBounds(10, 280, 50, 25);
-		contentPane.add(lblFrom);
 
 		dateFromChooser = new JDateChooser();
 		dateFromChooser.setBounds(60, 280, 120, 25);
 		dateFromChooser.setDateFormatString("yyyy-MM-dd");
-		contentPane.add(dateFromChooser);
-
+		dateFromChooser.setPreferredSize(new Dimension(130 , 25));
+		
 		JLabel lblTo = new JLabel("To:");
-		lblTo.setBounds(200, 280, 30, 25);
-		contentPane.add(lblTo);
-
 		dateToChooser = new JDateChooser();
 		dateToChooser.setBounds(230, 280, 120, 25);
 		dateToChooser.setDateFormatString("yyyy-MM-dd");
-		contentPane.add(dateToChooser);
+		dateToChooser.setPreferredSize(new Dimension(130, 25));
 
 		btnRent = new JButton("Rent Selected Car");
-		btnRent.setBounds(400, 277, 200, 30);
-		contentPane.add(btnRent);
-
+		
+		leftPanel.add(lblFrom);
+		leftPanel.add(dateFromChooser);
+		leftPanel.add(lblTo);
+		leftPanel.add(dateToChooser);
+		leftPanel.add(btnRent);
+		
+		bottomPanel.add(leftPanel, BorderLayout.CENTER);
+		
+		JPanel rightPanel = new JPanel();
+		rightPanel.setLayout(new BorderLayout(10 , 10));
+		
+		lblCarImage = new JLabel();
+		lblCarImage.setBounds(600, 270, 128, 85);
+		lblCarImage.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		rightPanel.add(lblCarImage , BorderLayout.CENTER);
+		
+		
+		JButton btnTermsAndConditions = new JButton("Terms and Conditions");
+		rightPanel.add(btnTermsAndConditions , BorderLayout.SOUTH);
+		
+		bottomPanel.add(rightPanel , BorderLayout.EAST);
+		
+		
+		
+		btnRent.addActionListener(e -> rentCar());
+		
+		btnTermsAndConditions.addActionListener(event -> {
+			TermsAndConditions terms = new TermsAndConditions();
+			terms.setVisible(true);
+		});
 		// Load cars from database
 		loadCars();
 
-		btnRent.addActionListener(e -> rentCar());
-		JButton btnTermsAndConditions = new JButton("Terms and Conditions");
-		btnTermsAndConditions.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnTermsAndConditions.setBounds(586, 423, 173, 30);
-		contentPane.add(btnTermsAndConditions);
-
-		btnTermsAndConditions.addActionListener(event -> {
-            TermsAndConditions terms = new TermsAndConditions();
-            terms.setVisible(true);
-        });
+		
 
 		tableCars.getSelectionModel().addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting() && tableCars.getSelectedRow() != -1) {
