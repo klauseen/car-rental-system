@@ -133,7 +133,8 @@ public class CarRegistration extends JFrame {
 	}
 
 	public CarRegistration() {
-
+		
+		setTitle("Car Registration");
 		setSize(1200, 700);
 		setLocationRelativeTo(null);
 		setLayout(new BorderLayout(10, 10));
