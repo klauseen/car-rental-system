@@ -1,5 +1,6 @@
 package rent;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -20,36 +21,58 @@ public class TermsAndConditions extends JFrame {
 	private JPanel contentPane;
 
 	public TermsAndConditions() {
+		setTitle("Terms and Conditions");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 619, 567);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setSize(800, 600);
+		setLocationRelativeTo(null);
+		setResizable(true);
+		setLayout(new BorderLayout(10, 15));
 
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 10, 587, 450);
-		contentPane.add(scrollPane);
-		
-		JTextArea txtrByRentingA = new JTextArea();
-		txtrByRentingA.setWrapStyleWord(true);
-		txtrByRentingA.setLineWrap(true);
-		txtrByRentingA.setEditable(false);
-		txtrByRentingA.setFont(new Font("Serif", Font.PLAIN, 15));
-		txtrByRentingA.setText("By renting a vehicle from NikRent, you agree to the following terms and conditions:\r\n\r\n1. The renter must hold a valid driving license and be at least 18 years old.\r\n\r\n2. The vehicle must be returned in the same condition as it was rented, excluding normal wear.\r\n\r\n3. Any damage, accident, or malfunction must be reported immediately.\r\n\r\n4. The renter is responsible for all traffic violations, fines, and penalties during the rental period.\r\n\r\n5. The vehicle may not be used for illegal activities, racing, or off-road driving.\r\n\r\n6. Smoking inside the vehicle is strictly prohibited.\r\n\r\n7. Late returns may result in additional charges.\r\n\r\n8. NikRent is not responsible for any personal belongings left in the vehicle.\r\n\r\n9. The rental fee must be paid in advance.\r\n\r\n10. By clicking \"I Agree\", you accept all these terms and conditions.");
-		scrollPane.setViewportView(txtrByRentingA);
-		
-		JLabel lblNewLabel = new JLabel("NikRent Agreement");
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		scrollPane.setColumnHeaderView(lblNewLabel);
-		
+		JLabel lblAgreement = new JLabel("NikRent Agreement");
+		lblAgreement.setHorizontalAlignment(SwingConstants.CENTER);
+		lblAgreement.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		add(lblAgreement, BorderLayout.NORTH);
+
+		JTextArea txtByRenting = new JTextArea();
+		txtByRenting.setWrapStyleWord(true);
+		txtByRenting.setLineWrap(true);
+		txtByRenting.setEditable(false);
+		txtByRenting.setFont(new Font("Serif", Font.PLAIN, 15));
+		txtByRenting.setText("""
+				By renting a vehicle from NikRent, you agree to the following terms and conditions:
+
+				1. The renter must hold a valid driving license and be at least 18 years old.
+
+				2. The vehicle must be returned in the same condition as it was rented, excluding normal wear.
+
+				3. Any damage, accident, or malfunction must be reported immediately.
+
+				4. The renter is responsible for all traffic violations, fines, and penalties during the rental period.
+
+				5. The vehicle may not be used for illegal activities, racing, or off-road driving.
+
+				6. Smoking inside the vehicle is strictly prohibited.
+
+				7. Late returns may result in additional charges.
+
+				8. NikRent is not responsible for any personal belongings left in the vehicle.
+
+				9. The rental fee must be paid in advance.
+
+				10. By clicking "Okay", you accept all these terms and conditions.
+				""");
+
+		JScrollPane scrollPane = new JScrollPane(txtByRenting);
+		add(scrollPane, BorderLayout.CENTER);
+
+		JPanel buttonPanel = new JPanel();
 		JButton btnOkay = new JButton("Okay");
 		btnOkay.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		btnOkay.setBounds(235, 486, 127, 23);
-		contentPane.add(btnOkay);
-		btnOkay.addActionListener(e ->{
+		buttonPanel.add(btnOkay);
+
+		add(buttonPanel, BorderLayout.SOUTH);
+
+		btnOkay.addActionListener(e -> {
 			this.dispose();
 		});
 
