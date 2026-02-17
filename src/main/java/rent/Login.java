@@ -108,32 +108,34 @@ public class Login extends JFrame {
 			return;
 		}
 
-		String sql = "SELECT role FROM login WHERE username = ? AND password = ?";
+		String sql = "SELECT password, role FROM users WHERE username = ?";
 
 		try (Connection conn = DBConfig.getConnection(); PreparedStatement pst = conn.prepareStatement(sql)) {
 
 			pst.setString(1, username);
-			pst.setString(2, password);
 
 			ResultSet rs = pst.executeQuery();
 
 			if (rs.next()) {
 
+				String storedHash = rs.getString("password");
 				String role = rs.getString("role");
 
-				if (role.equalsIgnoreCase("admin")) {
+				if (org.mindrot.jbcrypt.BCrypt.checkpw(password, storedHash)) {
+					if (role.equalsIgnoreCase("admin")) {
 
-					MainMenu adminFrame = new MainMenu();
-					adminFrame.setVisible(true);
+						MainMenu adminFrame = new MainMenu();
+						adminFrame.setVisible(true);
 
-				} else {
+					} else {
 
-					Customer customerFrame = new Customer(username);
-					customerFrame.setVisible(true);
+						Customer customerFrame = new Customer(username);
+						customerFrame.setVisible(true);
+					}
+
+					this.dispose();
+
 				}
-
-				this.dispose();
-
 			} else {
 				JOptionPane.showMessageDialog(this, "Invalid username or password!");
 			}
@@ -153,12 +155,14 @@ public class Login extends JFrame {
 			return;
 		}
 
-		String sql = "INSERT INTO login (username, password, role) VALUES (?, ?, 'customer')";
+		String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt());
+
+		String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, 'customer')";
 
 		try (Connection conn = DBConfig.getConnection(); PreparedStatement pst = conn.prepareStatement(sql)) {
 
 			pst.setString(1, username);
-			pst.setString(2, password);
+			pst.setString(2, hashedPassword);
 
 			pst.executeUpdate();
 
