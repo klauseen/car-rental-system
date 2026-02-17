@@ -1,22 +1,12 @@
 package rent;
 
-import java.awt.FlowLayout;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-
 import java.awt.BorderLayout;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-
-import javax.swing.JButton;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
@@ -28,12 +18,20 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.awt.event.ActionEvent;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 public class CarRegistration extends JFrame {
 
@@ -133,7 +131,7 @@ public class CarRegistration extends JFrame {
 	}
 
 	public CarRegistration() {
-		
+
 		setTitle("Car Registration");
 		setSize(1200, 700);
 		setLocationRelativeTo(null);
@@ -145,7 +143,7 @@ public class CarRegistration extends JFrame {
 		JPanel leftPanel = new JPanel(new GridBagLayout());
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		JPanel bottomPanel = new JPanel(new BorderLayout());
-		
+
 		JPanel leftButtons = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
@@ -249,7 +247,6 @@ public class CarRegistration extends JFrame {
 		gbc.gridx = 0;
 		gbc.gridy = 5;
 		gbc.weightx = 0;
-		
 
 		leftPanel.add(lblPrice, gbc);
 
@@ -270,17 +267,16 @@ public class CarRegistration extends JFrame {
 		gbc.weightx = 0;
 		gbc.fill = GridBagConstraints.NONE;
 		leftPanel.add(lblAvailable, gbc);
-		
+
 		cBAvailable = new JComboBox<>();
 		cBAvailable.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		cBAvailable.setModel(new DefaultComboBoxModel(new String[] { "Yes", "No" }));
-		
+
 		gbc.gridx = 1;
 		gbc.weightx = 0;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
-		leftPanel.add(cBAvailable , gbc);
-		
+		leftPanel.add(cBAvailable, gbc);
 
 		JButton btnUpload = new JButton("Upload Image");
 		btnUpload.setBounds(88, 440, 150, 30);
@@ -424,7 +420,6 @@ public class CarRegistration extends JFrame {
 				}
 			}
 		});
-		
 
 		JButton btnEdit = new JButton("Edit");
 		btnEdit.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -467,7 +462,6 @@ public class CarRegistration extends JFrame {
 				JOptionPane.showMessageDialog(this, ex.getMessage());
 			}
 		});
-		
 
 		JButton btnDelete = new JButton("Delete");
 		btnDelete.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -512,7 +506,6 @@ public class CarRegistration extends JFrame {
 				JOptionPane.showMessageDialog(this, "Error deleting car: " + ex.getMessage());
 			}
 		});
-		
 
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -520,16 +513,13 @@ public class CarRegistration extends JFrame {
 			// Hides the current window
 			this.dispose();
 		});
-		
 
-		
-		
 		leftButtons.add(btnAdd);
 		leftButtons.add(btnEdit);
 		leftButtons.add(btnDelete);
 		rightButtons.add(btnCancel);
-		bottomPanel.add(leftButtons , BorderLayout.WEST);
-		bottomPanel.add(rightButtons , BorderLayout.EAST);
+		bottomPanel.add(leftButtons, BorderLayout.WEST);
+		bottomPanel.add(rightButtons, BorderLayout.EAST);
 
 		autoID();
 		loadCars();
