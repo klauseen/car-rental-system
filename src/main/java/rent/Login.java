@@ -54,11 +54,11 @@ public class Login extends JFrame {
 
 		JLabel lblUsername = new JLabel("Username");
 		lblUsername.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblUsername.setBounds(72, 96, 100, 20);
+		lblUsername.setBounds(72, 112, 100, 20);
 		panel.add(lblUsername);
 
 		textUserName = new JTextField();
-		textUserName.setBounds(202, 96, 211, 25);
+		textUserName.setBounds(202, 112, 211, 25);
 		panel.add(textUserName);
 		textUserName.setColumns(10);
 
@@ -73,29 +73,38 @@ public class Login extends JFrame {
 
 		JButton btnLogin = new JButton("Login");
 		btnLogin.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		btnLogin.setBounds(202, 207, 90, 30);
+		btnLogin.setBounds(202, 211, 90, 30);
 		panel.add(btnLogin);
 
-		JButton btnCancel = new JButton("Cancel");
-		btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		btnCancel.setBounds(526, 254, 90, 30);
-		panel.add(btnCancel);
-
 		btnLogin.addActionListener(evt -> handleLogin(evt));
-		btnCancel.addActionListener(e -> System.exit(0));
 
 		JButton btnRegister = new JButton("Register");
 		btnRegister.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		btnRegister.setBounds(323, 207, 90, 30);
+		btnRegister.setBounds(323, 211, 90, 30);
 		panel.add(btnRegister);
 
-		JLabel lblNewLabel = new JLabel("Login");
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(193, 34, 235, 37);
-		panel.add(lblNewLabel);
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 15));
+		JLabel lblLogin = new JLabel("Login");
+		lblLogin.setHorizontalAlignment(SwingConstants.CENTER);
+		lblLogin.setBounds(193, 34, 235, 37);
+		panel.add(lblLogin);
+		lblLogin.setFont(new Font("Tahoma", Font.BOLD, 15));
+		
+		JCheckBox checkTerms = new JCheckBox("");
+		checkTerms.setBounds(198, 185, 21, 20);
+		panel.add(checkTerms);
+		
+		JButton btnViewTerms = new JButton("Terms & Conditions");
+		btnViewTerms.setFont(new Font("Tahoma" , Font.PLAIN , 11));
+		btnViewTerms.setBounds(200 , 185 , 140 , 20);
+		btnViewTerms.setContentAreaFilled(false);
+		btnViewTerms.setBorderPainted(false);
+		btnViewTerms.setForeground(Color.BLUE);
+		panel.add(btnViewTerms);
+		
+		btnViewTerms.addActionListener(e -> new TermsAndConditions().setVisible(true));
 
-		btnRegister.addActionListener(e -> handleRegister());
+		
+		btnRegister.addActionListener(e -> handleRegister(checkTerms));
 	}
 
 	private void handleLogin(ActionEvent evt) {
@@ -146,13 +155,18 @@ public class Login extends JFrame {
 		}
 	}
 
-	private void handleRegister() {
+	private void handleRegister(JCheckBox checkTerms) {
 		String username = textUserName.getText().trim();
 		String password = new String(passwordField.getPassword()).trim();
 
 		if (username.isEmpty() || password.isEmpty()) {
 			JOptionPane.showMessageDialog(this, "Complete all fields!");
 			return;
+		}
+		
+		if(!checkTerms.isSelected()) {
+			JOptionPane.showMessageDialog(this, "You must agree to the Terms and Conditions to register!");
+	        return;
 		}
 
 		String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt());
@@ -163,10 +177,10 @@ public class Login extends JFrame {
 
 			pst.setString(1, username);
 			pst.setString(2, hashedPassword);
-
 			pst.executeUpdate();
 
 			JOptionPane.showMessageDialog(this, "Registered successfully! You can now login.");
+
 			textUserName.setText("");
 			passwordField.setText("");
 
