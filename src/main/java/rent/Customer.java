@@ -99,10 +99,7 @@ public class Customer extends JFrame {
 		
 		btnRent.addActionListener(e -> rentCar());
 		
-		btnTermsAndConditions.addActionListener(event -> {
-			TermsAndConditions terms = new TermsAndConditions();
-			terms.setVisible(true);
-		});
+	
 		// Load cars from database
 		loadCars();
 
