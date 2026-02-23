@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,9 +46,9 @@ public class CarRegistration extends JFrame {
 	String imagePath = null;
 
 	private static final String UPDATE_SQL = "UPDATE carregistration SET Make=?, Model=?, Colour=?, Type=?, PricePerDay=?, Available=?, Image=? "
-			+ "WHERE Car_no=?";
+			+ "WHERE car_number=?";
 
-	private static final String INSERT_SQL = "INSERT INTO carregistration(Car_no, Make, Model, Colour, Type, PricePerDay, Available, Image) "
+	private static final String INSERT_SQL = "INSERT INTO carregistration(car_number, Make, Model, Colour, Type, PricePerDay, Available, Image) "
 			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
 	Connection con; // it's used for sql database, makes the connection
@@ -65,6 +66,8 @@ public class CarRegistration extends JFrame {
 		model.setRowCount(0); // cleans the table
 
 		String sql = "SELECT * FROM carregistration";
+		
+		
 
 		try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
 				PreparedStatement pst = con.prepareStatement(sql);
@@ -72,28 +75,26 @@ public class CarRegistration extends JFrame {
 
 			while (rs.next()) {
 
-				String reg = rs.getString("Car_no");
+				String reg = rs.getString("car_number");
 				String make = rs.getString("Make");
 				String modelCar = rs.getString("Model");
 				String colour = rs.getString("Colour");
 				String type = rs.getString("Type");
 				String price = rs.getString("PricePerDay");
 				String available = rs.getString("Available");
-				String imgPath = rs.getString("Image");
+				byte[]imgBytes = rs.getBytes("Image");
+				
 
 				if (available != null) {
 					available = available.substring(0, 1).toUpperCase() + available.substring(1).toLowerCase();
 				}
 
 				ImageIcon icon = null;
-				if (imgPath != null && !imgPath.isEmpty()) {
-					File f = new File(imgPath);
-					if (f.exists()) { // verifies if file exists
-						icon = new ImageIcon(imgPath);
-						icon.setDescription(imgPath);
-					} else {
-						System.out.println("Imaginea nu există: " + imgPath);
-					}
+				if (imgBytes != null && imgBytes.length > 0) {				
+					icon = new ImageIcon(imgBytes);
+					
+					Image img = icon.getImage().getScaledInstance(150,100, Image.SCALE_SMOOTH);
+					icon = new ImageIcon(img);
 				}
 
 				model.addRow(new Object[] { icon, reg, make, modelCar, colour, type, price, available });
@@ -105,7 +106,7 @@ public class CarRegistration extends JFrame {
 	}
 
 	public void autoID() {
-		String sql = "SELECT MAX(Car_no) AS maxCar FROM carregistration";
+		String sql = "SELECT MAX(car_number) AS maxCar FROM carregistration";
 
 		try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
 				PreparedStatement pst = con.prepareStatement(sql);
@@ -389,10 +390,10 @@ public class CarRegistration extends JFrame {
 				String type = txtType.getText();
 				String pricePerDay = txtPricePerDay.getText();
 				String available = cBAvailable.getSelectedItem().toString();
-
-				String insertSQL = "INSERT INTO carregistration(Car_no, Make, Model, Colour, Type, PricePerDay, Available, Image) "
+				
+				String insertSQL = "INSERT INTO carregistration(car_number, Make, Model, Colour, Type, PricePerDay, Available, Image) "
 						+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
+				
 				Connection con;
 				try {
 					con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
@@ -405,17 +406,23 @@ public class CarRegistration extends JFrame {
 					pst.setString(5, type);
 					pst.setString(6, pricePerDay);
 					pst.setString(7, available);
-					pst.setString(8, imagePath);
+					if(imagePath != null) {
+						File file = new File(imagePath);
+						byte[] imageData = Files.readAllBytes(file.toPath());
+						pst.setBytes(8 ,  imageData);
+					}else {
+						pst.setNull(8  , java.sql.Types.BLOB);
+					}
+					
 
 					pst.executeUpdate();
 					JOptionPane.showMessageDialog(CarRegistration.this, "Car has been added successfully");
-
+					loadCars();
 					ImageIcon icon = new ImageIcon(imagePath);
 					icon.setDescription(imagePath);
 					DefaultTableModel model = (DefaultTableModel) tblCars.getModel();
-					model.addRow(new Object[] { icon, regno, make, carModel, colour, type, pricePerDay, available });
-
-				} catch (SQLException e1) {
+					
+				} catch (SQLException | IOException e1) {
 					e1.printStackTrace();
 				}
 			}
@@ -431,35 +438,49 @@ public class CarRegistration extends JFrame {
 				return;
 			}
 
-			try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
-					PreparedStatement pst = con.prepareStatement(UPDATE_SQL)) {
+			try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD)){
+					
+					PreparedStatement pst;
 
-				pst.setString(1, txtMake.getText());
-				pst.setString(2, txtModel.getText());
-				pst.setString(3, txtColour.getText());
-				pst.setString(4, txtType.getText());
-				pst.setString(5, txtPricePerDay.getText());
-				pst.setString(6, cBAvailable.getSelectedItem().toString());
-				pst.setString(7, imagePath);
-				pst.setString(8, txtReg.getText());
-
-				pst.executeUpdate();
-
-				ImageIcon icon = new ImageIcon(imagePath);
-				icon.setDescription(imagePath);
-				model.setValueAt(icon, row, 0);
-
-				model.setValueAt(txtMake.getText(), row, 2);
-				model.setValueAt(txtModel.getText(), row, 3);
-				model.setValueAt(txtColour.getText(), row, 4);
-				model.setValueAt(txtType.getText(), row, 5);
-				model.setValueAt(txtPricePerDay.getText(), row, 6);
-				model.setValueAt(cBAvailable.getSelectedItem(), row, 7);
+				if(imagePath != null) {
+					String sqlWithImage = "UPDATE carregistration SET Make=?, Model=?, Colour=?, Type=?, PricePerDay=?, Available=?, Image=? WHERE car_number=?";
+					pst = con.prepareStatement(sqlWithImage);
+					
+					pst.setString(1, txtMake.getText());
+					pst.setString(2, txtModel.getText());
+					pst.setString(3, txtColour.getText());
+					pst.setString(4, txtType.getText());
+					pst.setString(5, txtPricePerDay.getText());
+					pst.setString(6, cBAvailable.getSelectedItem().toString());
+					
+					byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
+					pst.setBytes(7, imageBytes);
+					
+					pst.setString(8, txtReg.getText());
+					pst.executeUpdate();
+					pst.close();
+					
+				}else {
+					
+					String sqlNoImage = "UPDATE carregistration SET Make=?, Model=?, Colour=?, Type=?, PricePerDay=?, Available=? WHERE car_number=?";
+					pst = con.prepareStatement(sqlNoImage);
+					
+					pst.setString(1, txtMake.getText());
+		            pst.setString(2, txtModel.getText());
+		            pst.setString(3, txtColour.getText());
+		            pst.setString(4, txtType.getText());
+		            pst.setString(5, txtPricePerDay.getText());
+		            pst.setString(6, cBAvailable.getSelectedItem().toString());
+		            pst.setString(7, txtReg.getText());
+		            pst.executeUpdate();
+				}
 
 				JOptionPane.showMessageDialog(this, "Car updated successfully");
-
+				imagePath = null;
+				loadCars();
 			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(this, ex.getMessage());
+				ex.printStackTrace();
+				JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
 			}
 		});
 
@@ -482,7 +503,7 @@ public class CarRegistration extends JFrame {
 			String regNo = model.getValueAt(row, 1).toString(); // Car_no
 
 			try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
-					PreparedStatement pst = con.prepareStatement("DELETE FROM carregistration WHERE Car_no=?")) {
+					PreparedStatement pst = con.prepareStatement("DELETE FROM carregistration WHERE car_number=?")) {
 
 				pst.setString(1, regNo);
 				pst.executeUpdate();
