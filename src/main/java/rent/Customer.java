@@ -119,7 +119,7 @@ public class Customer extends JFrame {
 		try {
 			con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
 			pst = con
-					.prepareStatement("SELECT Car_no, Make, Model, Available, PricePerDay, Image FROM carregistration");
+					.prepareStatement("SELECT car_number, Make, Model, Available, PricePerDay, Image FROM carregistration");
 			rs = pst.executeQuery();
 
 			// Table model with image column
@@ -152,7 +152,7 @@ public class Customer extends JFrame {
 					icon = new ImageIcon(new BufferedImage(100, 60, BufferedImage.TYPE_INT_RGB));
 				}
 
-				model.addRow(new Object[] { rs.getString("car_no"), rs.getString("Make"), rs.getString("Model"),
+				model.addRow(new Object[] { rs.getString("car_number"), rs.getString("Make"), rs.getString("Model"),
 						rs.getString("Available"), rs.getDouble("PricePerDay"), icon
 
 				});
@@ -205,7 +205,7 @@ public class Customer extends JFrame {
 
 			// INSERT in rental table
 			String insertSql = """
-					    INSERT INTO rental (car_no, date_from, date_to, days, total_fee)
+					    INSERT INTO rental (car_number, date_from, date_to, days, total_fee)
 					    VALUES (?, ?, ?, ?, ?)
 					""";
 
@@ -219,7 +219,7 @@ public class Customer extends JFrame {
 			pst.executeUpdate();
 
 			// UPDATE availability to carregistration
-			String updateSql = "UPDATE carregistration SET available = 'no' WHERE car_no = ?";
+			String updateSql = "UPDATE carregistration SET available = 'no' WHERE car_number = ?";
 			pst = con.prepareStatement(updateSql);
 			pst.setString(1, carNo);
 			pst.executeUpdate();
