@@ -34,32 +34,31 @@ public class Customer extends JFrame {
 
 		setTitle("Customer - View Cars (" + username + ")");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(1000, 600);  
-		setLocationRelativeTo(null);  
-		setResizable(true); 
-		setLayout(new BorderLayout(10,10));
+		setSize(1000, 600);
+		setLocationRelativeTo(null);
+		setResizable(true);
+		setLayout(new BorderLayout(10, 10));
 
 		// ---------------- Table to show cars ----------------
 		tableCars = new JTable();
 		JScrollPane scrollPane = new JScrollPane(tableCars);
 		add(scrollPane, BorderLayout.CENTER);
-		
-		JPanel bottomPanel = new JPanel(new BorderLayout(20,10));
+
+		JPanel bottomPanel = new JPanel(new BorderLayout(20, 10));
 		add(bottomPanel, BorderLayout.SOUTH);
-		
+
 		JPanel leftPanel = new JPanel();
-		leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15 , 10));
+		leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 10));
 
 		// ---------------- Label to show car image ----------------
-		
 
 		JLabel lblFrom = new JLabel("From:");
 
 		dateFromChooser = new JDateChooser();
 		dateFromChooser.setBounds(60, 280, 120, 25);
 		dateFromChooser.setDateFormatString("yyyy-MM-dd");
-		dateFromChooser.setPreferredSize(new Dimension(130 , 25));
-		
+		dateFromChooser.setPreferredSize(new Dimension(130, 25));
+
 		JLabel lblTo = new JLabel("To:");
 		dateToChooser = new JDateChooser();
 		dateToChooser.setBounds(230, 280, 120, 25);
@@ -67,60 +66,74 @@ public class Customer extends JFrame {
 		dateToChooser.setPreferredSize(new Dimension(130, 25));
 
 		btnRent = new JButton("Rent Selected Car");
-		
+
 		leftPanel.add(lblFrom);
 		leftPanel.add(dateFromChooser);
 		leftPanel.add(lblTo);
 		leftPanel.add(dateToChooser);
 		leftPanel.add(btnRent);
-		
+
 		bottomPanel.add(leftPanel, BorderLayout.CENTER);
-		
+
 		JPanel rightPanel = new JPanel();
-		rightPanel.setLayout(new BorderLayout(10 , 10));
-		
+		rightPanel.setLayout(new BorderLayout(10, 10));
+
 		lblCarImage = new JLabel();
 		lblCarImage.setBounds(600, 270, 128, 85);
 		lblCarImage.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		rightPanel.add(lblCarImage , BorderLayout.CENTER);
-		
-		
+		rightPanel.add(lblCarImage, BorderLayout.CENTER);
+
 		JButton btnTermsAndConditions = new JButton("Terms and Conditions");
-		rightPanel.add(btnTermsAndConditions , BorderLayout.SOUTH);
-		
-		bottomPanel.add(rightPanel , BorderLayout.EAST);
-		
-		
-		
+		rightPanel.add(btnTermsAndConditions, BorderLayout.SOUTH);
+
+		bottomPanel.add(rightPanel, BorderLayout.EAST);
+
 		btnRent.addActionListener(e -> rentCar());
-		
-	
+
 		// Load cars from database
 		loadCars();
 
-		
-
 		tableCars.getSelectionModel().addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting() && tableCars.getSelectedRow() != -1) {
-				
 				int row = tableCars.getSelectedRow();
+				String carID = tableCars.getValueAt(row, 0).toString();
 
-				ImageIcon icon = (ImageIcon) tableCars.getValueAt(tableCars.getSelectedRow(), 5);
-		        
-		        if (icon != null) {
-		        	
-		            int width = lblCarImage.getWidth(); 
-		            int height = lblCarImage.getHeight();
-		            
-		            if(width <= 0) width = 300;
-		            if(height <= 0) height = 200;
-		            
-		            Image img = icon.getImage();
-		          
-		           Image newImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-		           lblCarImage.setIcon(new ImageIcon(newImg)); 
-		        }
-		    }
+				try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+						PreparedStatement pstImage = con
+								.prepareStatement("SELECT Image FROM carregistration WHERE car_number = ?")) {
+
+					pstImage.setString(1, carID);
+					try (ResultSet rsImage = pstImage.executeQuery()) {
+						if (rsImage.next()) {
+							byte[] imgBytes = rsImage.getBytes("Image");
+							if (imgBytes != null) {
+								ImageIcon fullIcon = new ImageIcon(imgBytes);
+								Image img = fullIcon.getImage();
+
+								int maxWidth = 400;
+								int maxHeight = 250;
+
+								double widthRatio = (double) maxWidth / img.getWidth(null);
+								double heightRatio = (double) maxHeight / img.getHeight(null);
+								double ratio = Math.min(widthRatio, heightRatio);
+
+								int targetWidth = (int) (img.getWidth(null) * ratio);
+								int targetHeight = (int) (img.getHeight(null) * ratio);
+
+								Image scaledImg = img.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+								lblCarImage.setIcon(new ImageIcon(scaledImg));
+
+								lblCarImage.setText("");
+							}
+						}
+					} catch (SQLException ex) {
+						ex.printStackTrace();
+					}
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+
 		});
 	}
 
@@ -128,7 +141,8 @@ public class Customer extends JFrame {
 	private void loadCars() {
 		try {
 			con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
-			pst = con.prepareStatement("SELECT car_number, Make, Model, Available, PricePerDay, Image FROM carregistration");
+			pst = con.prepareStatement(
+					"SELECT car_number, Make, Model, Available, PricePerDay, Image FROM carregistration");
 			rs = pst.executeQuery();
 
 			// Table model with image column
@@ -140,7 +154,10 @@ public class Customer extends JFrame {
 						return ImageIcon.class; // image column
 					return Object.class;
 				}
-				public boolean isCellEditable(int row , int column) {return false; }
+
+				public boolean isCellEditable(int row, int column) {
+					return false;
+				}
 			};
 
 			while (rs.next()) {
@@ -157,14 +174,8 @@ public class Customer extends JFrame {
 					icon = new ImageIcon(new BufferedImage(100, 60, BufferedImage.TYPE_INT_RGB));
 				}
 
-				model.addRow(new Object[] { 
-						rs.getString("car_number"),
-						rs.getString("Make"), 
-						rs.getString("Model"),
-						rs.getString("Available"), 
-						rs.getDouble("PricePerDay"), 
-						icon
-				});
+				model.addRow(new Object[] { rs.getString("car_number"), rs.getString("Make"), rs.getString("Model"),
+						rs.getString("Available"), rs.getDouble("PricePerDay"), icon });
 			}
 
 			tableCars.setModel(model);
