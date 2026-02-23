@@ -19,14 +19,11 @@ import java.util.concurrent.TimeUnit;
 public class Customer extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
 	private JTable tableCars;
 	private JButton btnRent;
 	private JDateChooser dateFromChooser;
 	private JDateChooser dateToChooser;
 	private JLabel lblCarImage;
-	private String loggedUser;
-
 	// Database
 	Connection con;
 	PreparedStatement pst;
@@ -34,8 +31,6 @@ public class Customer extends JFrame {
 	private final Action action = new SwingAction();
 
 	public Customer(String username) {
-
-		this.loggedUser = username;
 
 		setTitle("Customer - View Cars (" + username + ")");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -107,10 +102,25 @@ public class Customer extends JFrame {
 
 		tableCars.getSelectionModel().addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting() && tableCars.getSelectedRow() != -1) {
-				ImageIcon icon = (ImageIcon) tableCars.getValueAt(tableCars.getSelectedRow(), 5);
-				lblCarImage.setIcon(icon);
+				
+				int row = tableCars.getSelectedRow();
 
-			}
+				ImageIcon icon = (ImageIcon) tableCars.getValueAt(tableCars.getSelectedRow(), 5);
+		        
+		        if (icon != null) {
+		        	
+		            int width = lblCarImage.getWidth(); 
+		            int height = lblCarImage.getHeight();
+		            
+		            if(width <= 0) width = 300;
+		            if(height <= 0) height = 200;
+		            
+		            Image img = icon.getImage();
+		          
+		           Image newImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+		           lblCarImage.setIcon(new ImageIcon(newImg)); 
+		        }
+		    }
 		});
 	}
 
@@ -118,8 +128,7 @@ public class Customer extends JFrame {
 	private void loadCars() {
 		try {
 			con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
-			pst = con
-					.prepareStatement("SELECT car_number, Make, Model, Available, PricePerDay, Image FROM carregistration");
+			pst = con.prepareStatement("SELECT car_number, Make, Model, Available, PricePerDay, Image FROM carregistration");
 			rs = pst.executeQuery();
 
 			// Table model with image column
@@ -131,15 +140,16 @@ public class Customer extends JFrame {
 						return ImageIcon.class; // image column
 					return Object.class;
 				}
+				public boolean isCellEditable(int row , int column) {return false; }
 			};
 
 			while (rs.next()) {
 				// Load image
-				String imagePath = rs.getString("Image");
+				byte[] imgBytes = rs.getBytes("Image");
 				ImageIcon icon = null;
-				File imgFile = new File(imagePath);
-				if (imgFile.exists()) {
-					icon = new ImageIcon(imgFile.getAbsolutePath());
+
+				if (imgBytes != null && imgBytes.length > 0) {
+					icon = new ImageIcon(imgBytes);
 					Image img = icon.getImage().getScaledInstance(100, 60, Image.SCALE_SMOOTH);
 					icon = new ImageIcon(img);
 				} else {
@@ -147,14 +157,13 @@ public class Customer extends JFrame {
 					icon = new ImageIcon(new BufferedImage(100, 60, BufferedImage.TYPE_INT_RGB));
 				}
 
-				// fallback: empty image
-				if (icon == null) {
-					icon = new ImageIcon(new BufferedImage(100, 60, BufferedImage.TYPE_INT_RGB));
-				}
-
-				model.addRow(new Object[] { rs.getString("car_number"), rs.getString("Make"), rs.getString("Model"),
-						rs.getString("Available"), rs.getDouble("PricePerDay"), icon
-
+				model.addRow(new Object[] { 
+						rs.getString("car_number"),
+						rs.getString("Make"), 
+						rs.getString("Model"),
+						rs.getString("Available"), 
+						rs.getDouble("PricePerDay"), 
+						icon
 				});
 			}
 
