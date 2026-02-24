@@ -73,7 +73,10 @@ public class MainMenu extends JFrame {
 		
 		btnLogout.addActionListener(e -> { //Hides this window
 		    Login log = new Login();
+		    log.setLocationRelativeTo(null);
 		    log.setVisible(true);
+		    this.dispose();
+		    
 		});
 	}
 }
