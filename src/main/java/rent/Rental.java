@@ -46,7 +46,7 @@ public class Rental extends JFrame {
 	    // table model
 	    model = new DefaultTableModel(
 	        new Object[][] {},
-	        new String[] {"Car_No", "Make", "Model", "Period", "Fee"}
+	        new String[] {"car_number", "Make", "Model", "Period", "Fee"}
 	    );
 
 	    tblRented = new JTable(model);
@@ -69,13 +69,13 @@ public class Rental extends JFrame {
         		);
 		        PreparedStatement pst = con.prepareStatement("""
 		            SELECT 
-		                r.car_no,
+		                r.car_number,
 		                c.make,
 		                c.model,
 		                CONCAT(r.date_from, ' → ', r.date_to) AS period,
 		                r.total_fee
 		            FROM rental r
-		            JOIN carregistration c ON r.car_no = c.car_no
+		            JOIN carregistration c ON r.car_number = c.car_number
 		        """);
 		        ResultSet rs = pst.executeQuery();
 
@@ -87,13 +87,13 @@ public class Rental extends JFrame {
 
 		        while (rs.next()) {
 		            // Creates a unique key for every row
-		            String key = rs.getString("car_no") + "|" +
+		            String key = rs.getString("car_number") + "|" +
 		                         rs.getString("period") + "|" +
 		                         rs.getDouble("total_fee");
 
 		            if (!seen.contains(key)) {
 		                model.addRow(new Object[]{
-		                    rs.getString("car_no"),
+		                    rs.getString("car_number"),
 		                    rs.getString("make"),
 		                    rs.getString("model"),
 		                    rs.getString("period"),
