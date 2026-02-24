@@ -83,9 +83,6 @@ public class Customer extends JFrame {
 		lblCarImage.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		rightPanel.add(lblCarImage, BorderLayout.CENTER);
 
-		JButton btnTermsAndConditions = new JButton("Terms and Conditions");
-		rightPanel.add(btnTermsAndConditions, BorderLayout.SOUTH);
-
 		bottomPanel.add(rightPanel, BorderLayout.EAST);
 
 		btnRent.addActionListener(e -> rentCar());
