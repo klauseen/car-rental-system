@@ -1,6 +1,7 @@
 package rent;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -278,10 +279,13 @@ public class CarRegistration extends JFrame {
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		leftPanel.add(cBAvailable, gbc);
-
+		
+		JPanel uploadButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JButton btnUpload = new JButton("Upload Image");
-		btnUpload.setBounds(88, 440, 150, 30);
-		bottomPanel.add(btnUpload);
+		btnUpload.setPreferredSize(new Dimension(150 , 35));
+		btnUpload.setFont(new Font("Tahoma" ,Font.BOLD , 12));
+		uploadButtonPanel.add(btnUpload);
+		bottomPanel.add(uploadButtonPanel , BorderLayout.NORTH);
 
 		btnUpload.addActionListener(e -> {
 			JFileChooser chooser = new JFileChooser();
