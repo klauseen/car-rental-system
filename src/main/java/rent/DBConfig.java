@@ -9,6 +9,7 @@ public class DBConfig {
     public final static String URL;
     public final static String USER;
     public final static String PASSWORD;
+    private static Connection connection = null;
 
     static {
         try {
@@ -33,6 +34,9 @@ public class DBConfig {
     }
     
     public static Connection getConnection() throws Exception {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    	if(connection == null || connection.isClosed()) {
+        connection =  DriverManager.getConnection(URL, USER, PASSWORD);
+    	}
+    	return connection;
     }
 }
