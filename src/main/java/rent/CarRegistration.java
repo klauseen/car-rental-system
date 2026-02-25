@@ -52,7 +52,6 @@ public class CarRegistration extends JFrame {
 	private static final String INSERT_SQL = "INSERT INTO carregistration(car_number, Make, Model, Colour, Type, PricePerDay, Available, Image) "
 			+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-	Connection con; // it's used for sql database, makes the connection
 	PreparedStatement pst;
 	private JTextField txtReg;
 	/**
@@ -70,7 +69,7 @@ public class CarRegistration extends JFrame {
 		
 		
 
-		try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+		try (Connection con =DBConfig.getConnection();
 				PreparedStatement pst = con.prepareStatement(sql);
 				ResultSet rs = pst.executeQuery()) {
 
@@ -101,7 +100,8 @@ public class CarRegistration extends JFrame {
 				model.addRow(new Object[] { icon, reg, make, modelCar, colour, type, price, available });
 			}
 
-		} catch (SQLException e) {
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Error to database: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -109,7 +109,7 @@ public class CarRegistration extends JFrame {
 	public void autoID() {
 		String sql = "SELECT MAX(car_number) AS maxCar FROM carregistration";
 
-		try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+		try (Connection con = DBConfig.getConnection();
 				PreparedStatement pst = con.prepareStatement(sql);
 				ResultSet rs = pst.executeQuery()) {
 
@@ -127,7 +127,8 @@ public class CarRegistration extends JFrame {
 				}
 			}
 
-		} catch (SQLException e) {
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Error to database: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -314,6 +315,7 @@ public class CarRegistration extends JFrame {
 					System.out.println("Imaginea a fost încărcată: " + imagePath);
 				} catch (IOException ex) {
 					ex.printStackTrace();
+					JOptionPane.showMessageDialog(this, "Error to upload the image: " + ex.getMessage());
 				}
 			}
 		});
@@ -398,9 +400,8 @@ public class CarRegistration extends JFrame {
 				String insertSQL = "INSERT INTO carregistration(car_number, Make, Model, Colour, Type, PricePerDay, Available, Image) "
 						+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 				
-				Connection con;
 				try {
-					con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+					Connection con = DBConfig.getConnection();
 					pst = con.prepareStatement(insertSQL);
 
 					pst.setString(1, regno);
@@ -421,13 +422,13 @@ public class CarRegistration extends JFrame {
 
 					pst.executeUpdate();
 					JOptionPane.showMessageDialog(CarRegistration.this, "Car has been added successfully");
+					autoID();
 					loadCars();
-					ImageIcon icon = new ImageIcon(imagePath);
-					icon.setDescription(imagePath);
-					DefaultTableModel model = (DefaultTableModel) tblCars.getModel();
-					
-				} catch (SQLException | IOException e1) {
+					txtMake.setText("");
+					txtModel.setText("");
+				} catch (Exception e1) {
 					e1.printStackTrace();
+					JOptionPane.showMessageDialog(CarRegistration.this, "Error adding car: " + e1.getMessage());
 				}
 			}
 		});
@@ -442,7 +443,7 @@ public class CarRegistration extends JFrame {
 				return;
 			}
 
-			try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD)){
+			try (Connection con =DBConfig.getConnection()){
 					
 					PreparedStatement pst;
 
@@ -506,7 +507,7 @@ public class CarRegistration extends JFrame {
 
 			String regNo = model.getValueAt(row, 1).toString(); // Car_no
 
-			try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+			try (Connection con = DBConfig.getConnection();
 					PreparedStatement pst = con.prepareStatement("DELETE FROM carregistration WHERE car_number=?")) {
 
 				pst.setString(1, regNo);
@@ -518,15 +519,19 @@ public class CarRegistration extends JFrame {
 
 				if (icon != null) {
 					String path = icon.getDescription();
-					File f = new File(path);
-					if (f.exists()) {
-						f.delete(); // Delete file image
+					
+					if(path != null && !path.isEmpty()) {
+						File f = new File(path);
+						if (f.exists()) {
+							f.delete(); // Delete file image
+						}
 					}
-				}
+					}
+					
 
 				JOptionPane.showMessageDialog(this, "Car deleted successfully");
 
-			} catch (SQLException ex) {
+			} catch (Exception ex) {
 				ex.printStackTrace();
 				JOptionPane.showMessageDialog(this, "Error deleting car: " + ex.getMessage());
 			}
