@@ -25,7 +25,6 @@ public class Customer extends JFrame {
 	private JDateChooser dateToChooser;
 	private JLabel lblCarImage;
 	// Database
-	Connection con;
 	PreparedStatement pst;
 	ResultSet rs;
 	private final Action action = new SwingAction();
@@ -95,7 +94,7 @@ public class Customer extends JFrame {
 				int row = tableCars.getSelectedRow();
 				String carID = tableCars.getValueAt(row, 0).toString();
 
-				try (Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+				try (Connection con = DBConfig.getConnection();
 						PreparedStatement pstImage = con
 								.prepareStatement("SELECT Image FROM carregistration WHERE car_number = ?")) {
 
@@ -126,7 +125,7 @@ public class Customer extends JFrame {
 					} catch (SQLException ex) {
 						ex.printStackTrace();
 					}
-				} catch (SQLException e1) {
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 			}
@@ -137,7 +136,7 @@ public class Customer extends JFrame {
 	@SuppressWarnings({ "serial", "unused" })
 	private void loadCars() {
 		try {
-			con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+			Connection con = DBConfig.getConnection();
 			pst = con.prepareStatement(
 					"SELECT car_number, Make, Model, Available, PricePerDay, Image FROM carregistration");
 			rs = pst.executeQuery();
@@ -178,8 +177,9 @@ public class Customer extends JFrame {
 			tableCars.setModel(model);
 			tableCars.setRowHeight(60);
 
-		} catch (SQLException ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
+			JOptionPane.showMessageDialog(this,"Error to upload cars: " + ex.getMessage());
 		}
 	}
 
@@ -218,7 +218,7 @@ public class Customer extends JFrame {
 		double totalFee = days * pricePerDay;
 
 		try {
-			Connection con = DriverManager.getConnection(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+			Connection con =DBConfig.getConnection();
 
 			// INSERT in rental table
 			String insertSql = """
@@ -226,27 +226,30 @@ public class Customer extends JFrame {
 					    VALUES (?, ?, ?, ?, ?)
 					""";
 
-			pst = con.prepareStatement(insertSql);
-			pst.setString(1, carNo);
-			pst.setDate(2, new java.sql.Date(dateFrom.getTime()));
-			pst.setDate(3, new java.sql.Date(dateTo.getTime()));
-			pst.setInt(4, (int) days);
-			pst.setDouble(5, totalFee);
+			try(PreparedStatement pstInsert = con.prepareStatement(insertSql)){
+				pst = con.prepareStatement(insertSql);
+				pst.setString(1, carNo);
+				pst.setDate(2, new java.sql.Date(dateFrom.getTime()));
+				pst.setDate(3, new java.sql.Date(dateTo.getTime()));
+				pst.setInt(4, (int) days);
+				pst.setDouble(5, totalFee);
 
-			pst.executeUpdate();
+				pst.executeUpdate();
+			}
 
 			// UPDATE availability to carregistration
 			String updateSql = "UPDATE carregistration SET available = 'no' WHERE car_number = ?";
-			pst = con.prepareStatement(updateSql);
-			pst.setString(1, carNo);
-			pst.executeUpdate();
+			try(PreparedStatement pstUpdate = con.prepareStatement(updateSql)){
+				pst.setString(1, carNo);
+				pst.executeUpdate();
 
+			}
 			JOptionPane.showMessageDialog(this, "Car rented successfully!");
 
 			// Tabel refresh after renting
 			loadCars();
 
-		} catch (SQLException ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Error while renting car");
 		}
