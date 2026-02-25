@@ -12,6 +12,7 @@ import javax.swing.table.DefaultTableModel;
 public class DBManager {
 	
 	public static void loadCarsToTable(DefaultTableModel model) throws Exception {
+		model.setRowCount(0);
 
 		String sql = "SELECT * FROM carregistration";
 		try (Connection con = DBConfig.getConnection();
@@ -111,5 +112,35 @@ public class DBManager {
 			}
 			pst.executeUpdate();
 		}
+	}
+	
+	public static void registerUser(String username , String hashedPassword)throws Exception {
+		String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, 'customer')";
+		try (Connection con = DBConfig.getConnection(); PreparedStatement pst = con.prepareStatement(sql)) {
+
+			pst.setString(1, username);
+			pst.setString(2, hashedPassword);
+			pst.executeUpdate();
+		}
+	}
+	
+	public static String loginUser(String username, String password) throws Exception {
+		String sql = "SELECT password, role FROM users WHERE username = ?";
+		try (Connection conn = DBConfig.getConnection(); PreparedStatement pst = conn.prepareStatement(sql)) {
+
+			pst.setString(1, username);
+			ResultSet rs = pst.executeQuery();
+
+			if (rs.next()) {
+
+				String storedHash = rs.getString("password");
+				String role = rs.getString("role");
+
+				if (org.mindrot.jbcrypt.BCrypt.checkpw(password, storedHash)) {
+					return role;
+				}
+			}
+		}
+		return null;
 	}
 }

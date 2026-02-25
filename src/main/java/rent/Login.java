@@ -37,6 +37,9 @@ public class Login extends JFrame {
 	 * Create the frame.
 	 */
 	public Login() {
+		
+		//aici trebuie sa verifice daca exista tabelele.
+		
 		setForeground(SystemColor.desktop);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(660, 357);
@@ -117,39 +120,26 @@ public class Login extends JFrame {
 			return;
 		}
 
-		String sql = "SELECT password, role FROM users WHERE username = ?";
+		try {
+			String role = DBManager.loginUser(username, password);
 
-		try (Connection conn = DBConfig.getConnection(); PreparedStatement pst = conn.prepareStatement(sql)) {
+			if (role != null) {
+				if (role.equalsIgnoreCase("admin")) {
+					MainMenu adminFrame = new MainMenu();
+					adminFrame.setVisible(true);
 
-			pst.setString(1, username);
-
-			ResultSet rs = pst.executeQuery();
-
-			if (rs.next()) {
-
-				String storedHash = rs.getString("password");
-				String role = rs.getString("role");
-
-				if (org.mindrot.jbcrypt.BCrypt.checkpw(password, storedHash)) {
-					if (role.equalsIgnoreCase("admin")) {
-
-						MainMenu adminFrame = new MainMenu();
-						adminFrame.setVisible(true);
-
-					} else {
-
-						Customer customerFrame = new Customer(username);
-						customerFrame.setVisible(true);
-					}
-
-					this.dispose();
-
+				} else {
+					Customer customerFrame = new Customer(username);
+					customerFrame.setVisible(true);
 				}
+				this.dispose();
 			} else {
 				JOptionPane.showMessageDialog(this, "Invalid username or password!");
 			}
 
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, "Database error!");
 		}
@@ -169,15 +159,11 @@ public class Login extends JFrame {
 	        return;
 		}
 
-		String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt());
 
-		String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, 'customer')";
+		try {
+			String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt());
 
-		try (Connection conn = DBConfig.getConnection(); PreparedStatement pst = conn.prepareStatement(sql)) {
-
-			pst.setString(1, username);
-			pst.setString(2, hashedPassword);
-			pst.executeUpdate();
+			DBManager.registerUser(username, hashedPassword);
 
 			JOptionPane.showMessageDialog(this, "Registered successfully! You can now login.");
 
