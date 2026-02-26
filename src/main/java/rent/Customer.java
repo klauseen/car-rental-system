@@ -5,12 +5,10 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
 import com.toedter.calendar.JDateChooser;
-
+import java.util.List;
 import java.sql.*;
 import java.util.Date;
 import java.util.Properties;
@@ -39,7 +37,23 @@ public class Customer extends JFrame {
 		setLayout(new BorderLayout(10, 10));
 
 		// ---------------- Table to show cars ----------------
-		tableCars = new JTable();
+		DefaultTableModel model = new DefaultTableModel(
+				new Object[] { "Car Number", "Make", "Model", "Available", "Price/Day", "Image" }, 0) {
+
+			public Class<?> getColumnClass(int column) {
+				if (column == 5) {
+					return ImageIcon.class;
+				}
+				return Object.class;
+			}
+
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
+		tableCars = new JTable(model);
+		tableCars.setRowHeight(60);
 		JScrollPane scrollPane = new JScrollPane(tableCars);
 		add(scrollPane, BorderLayout.CENTER);
 
@@ -94,92 +108,61 @@ public class Customer extends JFrame {
 				int row = tableCars.getSelectedRow();
 				String carID = tableCars.getValueAt(row, 0).toString();
 
-				try (Connection con = DBConfig.getConnection();
-						PreparedStatement pstImage = con
-								.prepareStatement("SELECT Image FROM carregistration WHERE car_number = ?")) {
+				try {
+					byte[] imgBytes = DBManager.getCarImage(carID);
 
-					pstImage.setString(1, carID);
-					try (ResultSet rsImage = pstImage.executeQuery()) {
-						if (rsImage.next()) {
-							byte[] imgBytes = rsImage.getBytes("Image");
-							if (imgBytes != null) {
-								ImageIcon fullIcon = new ImageIcon(imgBytes);
-								Image img = fullIcon.getImage();
+					if (imgBytes != null && imgBytes.length > 0) {
+						ImageIcon fullIcon = new ImageIcon(imgBytes);
+						Image img = fullIcon.getImage();
 
-								int maxWidth = 400;
-								int maxHeight = 250;
+						int maxWidth = 400;
+						int maxHeight = 250;
 
-								double widthRatio = (double) maxWidth / img.getWidth(null);
-								double heightRatio = (double) maxHeight / img.getHeight(null);
-								double ratio = Math.min(widthRatio, heightRatio);
+						double widthRatio = (double) maxWidth / img.getWidth(null);
+						double heightRatio = (double) maxHeight / img.getHeight(null);
+						double ratio = Math.min(widthRatio, heightRatio);
 
-								int targetWidth = (int) (img.getWidth(null) * ratio);
-								int targetHeight = (int) (img.getHeight(null) * ratio);
+						int targetWidth = (int) (img.getWidth(null) * ratio);
+						int targetHeight = (int) (img.getHeight(null) * ratio);
 
-								Image scaledImg = img.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
-								lblCarImage.setIcon(new ImageIcon(scaledImg));
-
-								lblCarImage.setText("");
-							}
-						}
-					} catch (SQLException ex) {
-						ex.printStackTrace();
+						Image scaledImg = img.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+						lblCarImage.setIcon(new ImageIcon(scaledImg));
+						lblCarImage.setText("");
+					} else {
+						lblCarImage.setIcon(null);
+						lblCarImage.setText("No image available");
 					}
-				} catch (Exception e1) {
-					e1.printStackTrace();
+
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					lblCarImage.setText("Error loading page");
 				}
 			}
-
 		});
 	}
 
-	@SuppressWarnings({ "serial", "unused" })
 	private void loadCars() {
 		try {
-			Connection con = DBConfig.getConnection();
-			pst = con.prepareStatement(
-					"SELECT car_number, Make, Model, Available, PricePerDay, Image FROM carregistration");
-			rs = pst.executeQuery();
 
-			// Table model with image column
-			DefaultTableModel model = new DefaultTableModel(
-					new Object[] { "Car ID", "Make", "Model", "Available", "Price per day", "Image" }, 0) {
-				@Override
-				public Class<?> getColumnClass(int column) {
-					if (column == 5)
-						return ImageIcon.class; // image column
-					return Object.class;
-				}
+			DefaultTableModel model = (DefaultTableModel) tableCars.getModel();
+			model.setRowCount(0);
 
-				public boolean isCellEditable(int row, int column) {
-					return false;
-				}
-			};
+			List<Cars> cars = DBManager.getAllCars();
 
-			while (rs.next()) {
-				// Load image
-				byte[] imgBytes = rs.getBytes("Image");
+			for (Cars car : cars) {
+
 				ImageIcon icon = null;
-
-				if (imgBytes != null && imgBytes.length > 0) {
-					icon = new ImageIcon(imgBytes);
+				if (car.getImage() != null) {
+					icon = new ImageIcon(car.getImage());
 					Image img = icon.getImage().getScaledInstance(100, 60, Image.SCALE_SMOOTH);
 					icon = new ImageIcon(img);
-				} else {
-					// iF it doesn't exist we will show an empty placeholder
-					icon = new ImageIcon(new BufferedImage(100, 60, BufferedImage.TYPE_INT_RGB));
 				}
 
-				model.addRow(new Object[] { rs.getString("car_number"), rs.getString("Make"), rs.getString("Model"),
-						rs.getString("Available"), rs.getDouble("PricePerDay"), icon });
+				model.addRow(new Object[] { car.getRegNo(), car.getMake(), car.getModel(), car.getAvailable(),
+						car.getPricePerDay(), icon });
 			}
-
-			tableCars.setModel(model);
-			tableCars.setRowHeight(60);
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(this,"Error to upload cars: " + ex.getMessage());
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
 	}
 
@@ -190,12 +173,11 @@ public class Customer extends JFrame {
 			return;
 		}
 
-		String carNo = tableCars.getValueAt(selectedRow, 0).toString();
+		String regNo = tableCars.getValueAt(selectedRow, 0).toString();
 		String available = tableCars.getValueAt(selectedRow, 3).toString();
-
 		double pricePerDay = Double.parseDouble(tableCars.getValueAt(selectedRow, 4).toString());
 
-		if (!available.equalsIgnoreCase("yes")) {
+		if (!available.equalsIgnoreCase("Yes")) {
 			JOptionPane.showMessageDialog(this, "This car is not available for rent.");
 			return;
 		}
@@ -210,6 +192,7 @@ public class Customer extends JFrame {
 
 		long diffMillis = dateTo.getTime() - dateFrom.getTime();
 		long days = TimeUnit.DAYS.convert(diffMillis, TimeUnit.MILLISECONDS);
+
 		if (days <= 0) {
 			JOptionPane.showMessageDialog(this, "Invalid rental period.");
 			return;
@@ -218,35 +201,10 @@ public class Customer extends JFrame {
 		double totalFee = days * pricePerDay;
 
 		try {
-			Connection con =DBConfig.getConnection();
+			DBManager.processRental(regNo, dateFrom, dateTo, (int) days, totalFee);
 
-			// INSERT in rental table
-			String insertSql = """
-					    INSERT INTO rental (car_number, date_from, date_to, days, total_fee)
-					    VALUES (?, ?, ?, ?, ?)
-					""";
+			JOptionPane.showMessageDialog(this, "Car rented successfully. Total: " + totalFee);
 
-			try(PreparedStatement pstInsert = con.prepareStatement(insertSql)){
-				pst = con.prepareStatement(insertSql);
-				pst.setString(1, carNo);
-				pst.setDate(2, new java.sql.Date(dateFrom.getTime()));
-				pst.setDate(3, new java.sql.Date(dateTo.getTime()));
-				pst.setInt(4, (int) days);
-				pst.setDouble(5, totalFee);
-
-				pst.executeUpdate();
-			}
-
-			// UPDATE availability to carregistration
-			String updateSql = "UPDATE carregistration SET available = 'no' WHERE car_number = ?";
-			try(PreparedStatement pstUpdate = con.prepareStatement(updateSql)){
-				pst.setString(1, carNo);
-				pst.executeUpdate();
-
-			}
-			JOptionPane.showMessageDialog(this, "Car rented successfully!");
-
-			// Tabel refresh after renting
 			loadCars();
 
 		} catch (Exception ex) {
