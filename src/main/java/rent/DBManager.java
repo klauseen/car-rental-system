@@ -17,7 +17,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class DBManager {
 	
-	public static void initDataBase() {
+	public static void initDatabase() {
 
 		String createCarRegistrationTable = """
 					CREATE TABLE IF NOT EXISTS carregistration(
@@ -59,9 +59,9 @@ public class DBManager {
 		
 		try(Connection con = DBConfig.getConnection();
 				Statement stmt = con.createStatement()){
-			stmt.executeQuery(createCarRegistrationTable);
-			stmt.executeQuery(createRentalTable);
-			stmt.executeQuery(createUsersTable);
+			stmt.executeUpdate(createCarRegistrationTable);
+			stmt.executeUpdate(createRentalTable);
+			stmt.executeUpdate(createUsersTable);
 			
 			System.out.println("Table system was verified or created successfully");
 		}catch(Exception e) {
