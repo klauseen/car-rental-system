@@ -29,7 +29,7 @@ public class DBManager {
 				  		`Colour` varchar(45) NOT NULL,
 				  		`Type` varchar(45) NOT NULL,
 				  		`PricePerDay` varchar(45) NOT NULL,
-				  		`Available` varchar(45) NOT NULL,
+				  		`Available` varchar(45) NOT NULL DEFAULT 'Yes',
 				  		PRIMARY KEY (`idcarregistration`)
 					)
 					""";
