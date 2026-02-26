@@ -10,7 +10,7 @@ import java.sql.*;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class Customer extends JFrame {
+public class CustomerPage extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JTable tableCars;
@@ -23,7 +23,7 @@ public class Customer extends JFrame {
 	ResultSet rs;
 	private final Action action = new SwingAction();
 
-	public Customer(String username) {
+	public CustomerPage(String username) {
 
 		setTitle("Customer - View Cars (" + username + ")");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

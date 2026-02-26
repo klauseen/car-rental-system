@@ -10,7 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class Login extends JFrame {
+public class LoginPage extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textUserName;
@@ -26,7 +26,7 @@ public class Login extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Login frame = new Login();
+					LoginPage frame = new LoginPage();
 					frame.setVisible(true);
 					frame.setLocationRelativeTo(null);
 				} catch (Exception e) {
@@ -36,7 +36,7 @@ public class Login extends JFrame {
 		});
 	}
 
-	public Login() {
+	public LoginPage() {
 
 
 		setForeground(SystemColor.desktop);
@@ -103,7 +103,7 @@ public class Login extends JFrame {
 		btnViewTerms.setForeground(Color.BLUE);
 		panel.add(btnViewTerms);
 
-		btnViewTerms.addActionListener(e -> new TermsAndConditions().setVisible(true));
+		btnViewTerms.addActionListener(e -> new TermsAndConditionsPage().setVisible(true));
 
 		btnRegister.addActionListener(e -> handleRegister(checkTerms));
 	}
@@ -123,11 +123,11 @@ public class Login extends JFrame {
 
 			if (role != null) {
 				if (role.equalsIgnoreCase("admin")) {
-					MainMenu adminFrame = new MainMenu();
+					MainMenuPage adminFrame = new MainMenuPage();
 					adminFrame.setVisible(true);
 
 				} else {
-					Customer customerFrame = new Customer(username);
+					CustomerPage customerFrame = new CustomerPage(username);
 					customerFrame.setVisible(true);
 				}
 				this.dispose();

@@ -15,11 +15,11 @@ import javax.swing.SwingConstants;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 
-public class TermsAndConditions extends JFrame {
+public class TermsAndConditionsPage extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	public TermsAndConditions() {
+	public TermsAndConditionsPage() {
 		setTitle("Terms and Conditions");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(800, 600);

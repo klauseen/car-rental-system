@@ -13,12 +13,12 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 
-public class MainMenu extends JFrame {
+public class MainMenuPage extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
-	public MainMenu() {
+	public MainMenuPage() {
 		setTitle("Main Menu");
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setSize(900, 700);
@@ -59,20 +59,20 @@ public class MainMenu extends JFrame {
 		centerPanel.add(buttonPanel, gbc);
 		
 		btnCarReg.addActionListener(e -> {
-		        CarRegistration c = new CarRegistration();
+		        CarRegistrationPage c = new CarRegistrationPage();
 		        c.setVisible(true);// here will open car registration window
 		});
 		
 		
 		
 		btnRental.addActionListener(e -> {
-		        Rental r = new Rental();
+		        RentalPage r = new RentalPage();
 		        r.setVisible(true);  // here will open rental window
 		});
 		
 		
 		btnLogout.addActionListener(e -> { //Hides this window
-		    Login log = new Login();
+		    LoginPage log = new LoginPage();
 		    log.setLocationRelativeTo(null);
 		    log.setVisible(true);
 		    this.dispose();

@@ -31,7 +31,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-public class CarRegistration extends JFrame {
+public class CarRegistrationPage extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JTextField txtMake;
@@ -88,7 +88,7 @@ public class CarRegistration extends JFrame {
 	}
 
 	@SuppressWarnings("serial")
-	public CarRegistration() {
+	public CarRegistrationPage() {
 
 		setTitle("Car Registration");
 		setSize(1200, 700);
@@ -362,7 +362,7 @@ public class CarRegistration extends JFrame {
 					}
 					DBManager.addCar(regno, make, carModel, colour, type, pricePerDay, available, imageData);
 					
-					JOptionPane.showMessageDialog(CarRegistration.this, "Car has been added successfully");
+					JOptionPane.showMessageDialog(CarRegistrationPage.this, "Car has been added successfully");
 					
 					txtMake.setText("");
 					txtModel.setText("");
@@ -376,7 +376,7 @@ public class CarRegistration extends JFrame {
 					
 				} catch (Exception e1) {
 					e1.printStackTrace();
-					JOptionPane.showMessageDialog(CarRegistration.this, "Error adding car: " + e1.getMessage());
+					JOptionPane.showMessageDialog(CarRegistrationPage.this, "Error adding car: " + e1.getMessage());
 				}
 			}
 		});

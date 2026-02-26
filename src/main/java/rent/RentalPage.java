@@ -19,7 +19,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-public class Rental extends JFrame {
+public class RentalPage extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -27,7 +27,7 @@ public class Rental extends JFrame {
 	private DefaultTableModel model;
 	Connection con;
 
-	public Rental() {
+	public RentalPage() {
 		setTitle("Rental Records");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
