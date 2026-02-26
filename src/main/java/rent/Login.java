@@ -20,6 +20,9 @@ public class Login extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+
+		DBManager.initDatabase();
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -33,13 +36,9 @@ public class Login extends JFrame {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
 	public Login() {
-		
-		//aici trebuie sa verifice daca exista tabelele.
-		
+
+
 		setForeground(SystemColor.desktop);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(660, 357);
@@ -91,22 +90,21 @@ public class Login extends JFrame {
 		lblLogin.setBounds(193, 34, 235, 37);
 		panel.add(lblLogin);
 		lblLogin.setFont(new Font("Tahoma", Font.BOLD, 15));
-		
+
 		JCheckBox checkTerms = new JCheckBox("");
 		checkTerms.setBounds(198, 185, 21, 20);
 		panel.add(checkTerms);
-		
+
 		JButton btnViewTerms = new JButton("Terms & Conditions");
-		btnViewTerms.setFont(new Font("Tahoma" , Font.PLAIN , 11));
-		btnViewTerms.setBounds(200 , 185 , 140 , 20);
+		btnViewTerms.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		btnViewTerms.setBounds(200, 185, 140, 20);
 		btnViewTerms.setContentAreaFilled(false);
 		btnViewTerms.setBorderPainted(false);
 		btnViewTerms.setForeground(Color.BLUE);
 		panel.add(btnViewTerms);
-		
+
 		btnViewTerms.addActionListener(e -> new TermsAndConditions().setVisible(true));
 
-		
 		btnRegister.addActionListener(e -> handleRegister(checkTerms));
 	}
 
@@ -153,12 +151,11 @@ public class Login extends JFrame {
 			JOptionPane.showMessageDialog(this, "Complete all fields!");
 			return;
 		}
-		
-		if(!checkTerms.isSelected()) {
-			JOptionPane.showMessageDialog(this, "You must agree to the Terms and Conditions to register!");
-	        return;
-		}
 
+		if (!checkTerms.isSelected()) {
+			JOptionPane.showMessageDialog(this, "You must agree to the Terms and Conditions to register!");
+			return;
+		}
 
 		try {
 			String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt());
