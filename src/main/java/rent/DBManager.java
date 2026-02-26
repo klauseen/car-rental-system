@@ -4,6 +4,8 @@ import java.awt.Image;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -11,35 +13,26 @@ import javax.swing.table.DefaultTableModel;
 
 public class DBManager {
 	
-	public static void loadCarsToTable(DefaultTableModel model) throws Exception {
-		model.setRowCount(0);
-
+	public static List<Cars> getAllCars()throws Exception{
+		List<Cars> carList = new ArrayList();
 		String sql = "SELECT * FROM carregistration";
-		try (Connection con = DBConfig.getConnection();
-				PreparedStatement pst = con.prepareStatement(sql);
-				ResultSet rs = pst.executeQuery()) {
-
-			while (rs.next()) {
-				String reg = rs.getString("car_number");
-				String make = rs.getString("Make");
-				String modelCar = rs.getString("Model");
-				String colour = rs.getString("Colour");
-				String type = rs.getString("Type");
-				String price = rs.getString("PricePerDay");
-				String available = rs.getString("Available");
-				byte[] imgBytes = rs.getBytes("Image");
-
-				ImageIcon icon = null;
-				if (imgBytes != null && imgBytes.length > 0) {
-					icon = new ImageIcon(imgBytes);
-
-					Image img = icon.getImage().getScaledInstance(150, 100, Image.SCALE_SMOOTH);
-					icon = new ImageIcon(img);
-				}
-				model.addRow(new Object[] { icon, reg, make, modelCar, colour, type, price, available });
-
+		
+		try(Connection con = DBConfig.getConnection();PreparedStatement pst = con.prepareStatement(sql);
+				ResultSet rs = pst.executeQuery();){
+			while(rs.next()) {
+				carList.add(new Cars(
+						rs.getString("car_number"),
+						rs.getString("Make"),
+						rs.getString("Model"),
+						rs.getString("Colour"),
+						rs.getString("Type"),
+						rs.getString("PricePerDay"),
+						rs.getString("Available"),
+						rs.getBytes("Image")
+						));
 			}
 		}
+		return carList;
 	}
 	
 	public static String IDAuto()throws Exception {
