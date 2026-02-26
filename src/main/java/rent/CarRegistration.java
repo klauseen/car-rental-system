@@ -15,11 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -55,10 +51,26 @@ public class CarRegistration extends JFrame {
 	private void loadCars() {
 
 		try {
-			DBManager.loadCarsToTable((DefaultTableModel) tblCars.getModel());
-		}catch(Exception e) {
-			JOptionPane.showMessageDialog(this , "Error to load cars: " + e.getMessage());
-			e.printStackTrace();
+			DefaultTableModel model = (DefaultTableModel) tblCars.getModel();
+			model.setRowCount(0);
+
+			List<Cars> cars = DBManager.getAllCars();
+
+			for (Cars car : cars) {
+				ImageIcon icon = null;
+				if (car.getImage() != null && car.getImage().length > 0) {
+					icon = new ImageIcon(car.getImage());
+					Image img = icon.getImage().getScaledInstance(150, 100, Image.SCALE_SMOOTH);
+					icon = new ImageIcon(img);
+				}
+
+				model.addRow(new Object[] { icon, car.getRegNo(), car.getMake(), car.getModel(), car.getColour(),
+						car.getType(), car.getPricePerDay(), car.getAvailable()
+
+				});
+			}
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Error loading Cars: " + e.getMessage());
 		}
 
 	}
@@ -66,7 +78,7 @@ public class CarRegistration extends JFrame {
 	public void autoID() {
 		try {
 			String nextID = DBManager.IDAuto();
-			
+
 			txtReg.setText(nextID);
 
 		} catch (Exception e) {
@@ -75,6 +87,7 @@ public class CarRegistration extends JFrame {
 		}
 	}
 
+	@SuppressWarnings("serial")
 	public CarRegistration() {
 
 		setTitle("Car Registration");
@@ -396,6 +409,7 @@ public class CarRegistration extends JFrame {
 				JOptionPane.showMessageDialog(this, "Car updated successfully");
 				imagePath = null;
 				loadCars();
+				
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
