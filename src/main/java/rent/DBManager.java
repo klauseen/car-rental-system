@@ -19,11 +19,14 @@ public class DBManager {
 		List <RentalReport> rentList = new ArrayList<>();
 		Set<String> seen = new HashSet<>();
 		
-		String sql = "SELECT r.car_number, c.make, c.model," + 
-					 "CONCAT(r.date_from, '->', r.date_to) AS period, r.total_fee" +
-					 "FROM rental r" +
-					 "JOIN carregistration c ON r.car_number = c.car_number";
-		
+		String sql = """
+				SELECT r.car_number, c.make, c.model,
+				       CONCAT(r.date_from, ' -> ', r.date_to) AS period,
+				       r.total_fee
+				FROM rental r
+				JOIN carregistration c ON r.car_number = c.car_number
+				""";
+
 		try(Connection con = DBConfig.getConnection();
 			PreparedStatement pst = con.prepareStatement(sql);
 				ResultSet rs = pst.executeQuery()){
