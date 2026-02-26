@@ -4,6 +4,8 @@ import java.awt.Image;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +16,59 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class DBManager {
+	
+	public static void initDataBase() {
+
+		String createCarRegistrationTable = """
+					CREATE TABLE IF NOT EXISTS carregistration(
+						`idcarregistration` int NOT NULL AUTO_INCREMENT,
+				  		`car_number` varchar(45) NOT NULL UNIQUE,
+				  		`Image` longblob NOT NULL,
+				  		`Make` varchar(45) NOT NULL,
+				  		`Model` varchar(45) NOT NULL,
+				  		`Colour` varchar(45) NOT NULL,
+				  		`Type` varchar(45) NOT NULL,
+				  		`PricePerDay` varchar(45) NOT NULL,
+				  		`Available` varchar(45) NOT NULL,
+				  		PRIMARY KEY (`idcarregistration`)
+					)
+					""";
+		
+		String createRentalTable = """
+				CREATE TABLE IF NOT EXISTS rental(
+					`idrental` int NOT NULL AUTO_INCREMENT,
+					`car_number` varchar(45) NOT NULL,
+					`Date_from` date NOT NULL,
+					`Date_to` date NOT NULL,
+					`Days` int NOT NULL,
+					`Total_fee` double NOT NULL,
+					PRIMARY KEY (`idrental`)
+				) 
+				""";
+		
+		String createUsersTable = """
+					CREATE TABLE IF NOT EXISTS users(
+						`idlogin` int NOT NULL AUTO_INCREMENT,
+						`username` varchar(100) NOT NULL,
+						`password` varchar(255) NOT NULL,
+						`role` varchar(45) NOT NULL,
+						PRIMARY KEY (`idlogin`),
+						UNIQUE KEY `username_UNIQUE` (`username`)
+					)
+					""";
+		
+		try(Connection con = DBConfig.getConnection();
+				Statement stmt = con.createStatement()){
+			stmt.executeQuery(createCarRegistrationTable);
+			stmt.executeQuery(createRentalTable);
+			stmt.executeQuery(createUsersTable);
+			
+			System.out.println("Table system was verified or created successfully");
+		}catch(Exception e) {
+			System.err.println("Error to initialize database: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
 	
 	public static List<RentalReport> getRents()throws Exception{
 		List <RentalReport> rentList = new ArrayList<>();
