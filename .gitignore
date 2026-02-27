@@ -1,2 +1,12 @@
-/target/
+.vscode/
+.vs/
+.settings/
+.classpath
+.project
+target/
+.idea/
+*.class
 db.local.properties
+images/*
+!images/logo.png
+!images/demonstration.gif
