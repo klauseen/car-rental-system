@@ -10,6 +10,21 @@ Car Rental System
 <p>
 Car Rental System is a desktop application designed to automate the workflow of a car rental agency. It emphasizes a user-friendly interface, security, and efficiency in fleet management.
 </p>
+
+  <h2 style = "font-size: 1.5em; font-weight: bold">
+  🔑 Key Features
+  </h2>
+  <p>
+  <b>Automated Database Setup:</b> Tables are automatically initialized on the first run.
+  <br>
+  <b>User Authentication:</b> Secure login system with encrypted credentials.
+  <br>
+  <b>Fleet Management:</b>
+  Add, update and manage vehicle details with ease.
+  <br>
+  <b>Rental Processing:</b> Calculate total cost and manage bookings efficiently.
+  </p>
+
 <h2 style = "font-size: 1.5em; font weight: bold">
 📺 Demonstration
 </h2>
@@ -56,21 +71,10 @@ Car Rental System is a desktop application designed to automate the workflow of 
 <b>Security:</b> jBcrypt for password hashing
 </p> 
 
-
+<p>
   <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white" alt="Java">
   <img src="https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
   <img src="https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white" alt="Maven">
-
-  <h2 style = "font-size: 1.5em; font-weight: bold">
-  🔑 Key Features
-  </h2>
-  <p>
-  <b>Automated Database Setup:</b> Tables are automatically initialized on the first run.
-  <br>
-  <b>User Authentication:</b> Secure login system with encrypted credentials.
-  <br>
-  <b>Fleet Management:</b>
-  Add, update and manage vehicle details with ease.
-  <br>
-  <b>Rental Processing:</b> Calculate total cost and manage bookings efficiently.
   </p>
+
+
